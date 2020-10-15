@@ -1,6 +1,11 @@
 [package]
 authors = ["Lucio Franco <luciofranco14@gmail.com>"]
-category = ["async"]
+categories = ["async"]
+keywords = ["async", "compat"]
+license = "MIT"
+readme = "README.md"
+homepage = "https://tokio.rs"
+repository = "https://github.com/LucioFranco/tokio-compat-02"
 description = "Tokio 0.2 compat utilities"
 edition = "2018"
 name = "tokio-compat-02"
