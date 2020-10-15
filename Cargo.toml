@@ -13,7 +13,7 @@ version = "0.1.0"
 
 [dependencies]
 once_cell = "1.4"
-pin-project-lite = "*"
+pin-project-lite = "0.1"
 tokio_02 = {version = "0.2", package = "tokio", features = ["rt-threaded"]}
 
 [dev-dependencies]
