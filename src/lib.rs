@@ -6,6 +6,8 @@
 //! can be useful if you need to use a tokio based library in an executor/runtime
 //! that does not provide a tokio context.
 
+#![doc(html_root_url = "https://docs.rs/tokio-compat-02/0.1.0")]
+
 use once_cell::sync::OnceCell;
 use pin_project_lite::pin_project;
 use std::{
