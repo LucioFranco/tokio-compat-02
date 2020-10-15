@@ -9,7 +9,7 @@ version = "0.1.0"
 [dependencies]
 once_cell = "1.4"
 pin-project-lite = "*"
-tokio_02 = {version = "0.2", package = "tokio", features = ["rt-threaded", "full"]}
+tokio_02 = {version = "0.2", package = "tokio", features = ["rt-threaded"]}
 
 [dev-dependencies]
 hyper = "0.13"
