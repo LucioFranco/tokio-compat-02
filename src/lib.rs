@@ -17,7 +17,23 @@ use std::{
 };
 use tokio_02::runtime::{Handle, Runtime};
 
+mod io;
+pub use self::io::IoCompat;
+
 static RT: OnceCell<Runtime> = OnceCell::new();
+fn get_handle() -> Handle {
+    RT
+        .get_or_init(|| {
+            tokio_02::runtime::Builder::new()
+                .threaded_scheduler()
+                .core_threads(1)
+                .enable_all()
+                .build()
+                .unwrap()
+        })
+        .handle()
+        .clone()
+}
 
 pin_project! {
     /// `TokioContext` allows connecting a custom executor with the tokio runtime.
@@ -69,21 +85,9 @@ pub trait FutureExt: Future {
 
 impl<F: Future> FutureExt for F {
     fn compat(self) -> TokioContext<Self> {
-        let handle = RT
-            .get_or_init(|| {
-                tokio_02::runtime::Builder::new()
-                    .threaded_scheduler()
-                    .core_threads(1)
-                    .enable_all()
-                    .build()
-                    .unwrap()
-            })
-            .handle()
-            .clone();
-
         TokioContext {
             inner: self,
-            handle,
+            handle: get_handle(),
         }
     }
 }
