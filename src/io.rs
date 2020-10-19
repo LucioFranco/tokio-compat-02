@@ -3,13 +3,14 @@ use pin_project_lite::pin_project;
 use std::io::Result;
 use std::pin::Pin;
 use std::task::{Context, Poll};
+use tokio::io::{
+    AsyncBufRead as AsyncBufRead03, AsyncRead as AsyncRead03, AsyncWrite as AsyncWrite03, ReadBuf,
+};
+use tokio::stream::Stream;
 use tokio_02::io::{
     AsyncBufRead as AsyncBufRead02, AsyncRead as AsyncRead02, AsyncWrite as AsyncWrite02,
 };
 use tokio_02::runtime::Handle;
-use tokio::io::{
-    AsyncBufRead as AsyncBufRead03, AsyncRead as AsyncRead03, AsyncWrite as AsyncWrite03, ReadBuf,
-};
 
 pin_project! {
     /// `IoCompat` allows conversion between the 0.2 and 0.3 IO traits.
@@ -150,5 +151,21 @@ impl<T: AsyncBufRead03> AsyncBufRead02 for IoCompat<T> {
 
     fn consume(self: Pin<&mut Self>, amt: usize) {
         self.project().inner.consume(amt)
+    }
+}
+
+impl<T: Stream> Stream for IoCompat<T> {
+    type Item = T::Item;
+
+    fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<T::Item>> {
+        let me = self.project();
+        let handle = me.handle;
+        let inner = me.inner;
+
+        handle.enter(|| inner.poll_next(cx))
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.project().inner.size_hint()
     }
 }
