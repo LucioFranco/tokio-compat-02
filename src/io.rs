@@ -70,9 +70,11 @@ impl<T: AsyncRead03> AsyncRead02 for IoCompat<T> {
     where
         Self: Sized,
     {
-        let mut read_buf = ReadBuf::uninit(buf.bytes_mut());
+        let slice = buf.bytes_mut();
+        let mut read_buf = ReadBuf::uninit(slice);
         match self.project().inner.poll_read(cx, &mut read_buf) {
             Poll::Ready(Ok(())) => {
+                assert!(std::ptr::eq(slice.as_ptr(), read_buf.filled().as_ptr()));
                 let len = read_buf.filled().len();
                 unsafe {
                     buf.advance_mut(len);
