@@ -1,6 +1,6 @@
 use tokio_02::runtime::Handle;
-use tokio_02::io::{AsyncRead as AsyncRead02, AsyncBufRead as AsyncBufRead02, AsyncWrite as AsyncWrite02, AsyncSeek as AsyncSeek02};
-use tokio_03::io::{AsyncRead as AsyncRead03, AsyncBufRead as AsyncBufRead03, AsyncWrite as AsyncWrite03, AsyncSeek as AsyncSeek03, ReadBuf};
+use tokio_02::io::{AsyncRead as AsyncRead02, AsyncBufRead as AsyncBufRead02, AsyncWrite as AsyncWrite02};
+use tokio_03::io::{AsyncRead as AsyncRead03, AsyncBufRead as AsyncBufRead03, AsyncWrite as AsyncWrite03, ReadBuf};
 use std::pin::Pin;
 use std::task::{Context, Poll};
 use std::io::Result;
@@ -40,11 +40,15 @@ impl<T: AsyncRead02> AsyncRead03 for IoCompat<T> {
 
         let unfilled = buf.initialize_unfilled();
 
-        let num = handle.enter(|| {
-            inner.poll_read(cx, unfilled).map_ok(|_num| ())
+        let poll = handle.enter(|| {
+            inner.poll_read(cx, unfilled)
         });
 
-        buf.advance(num);
+        if let Poll::Ready(Ok(num)) = &poll {
+            buf.advance(*num);
+        }
+
+        poll.map_ok(|_| ())
     }
 }
 
@@ -71,10 +75,11 @@ impl<T: AsyncRead03> AsyncRead02 for IoCompat<T> {
         Self: Sized,
     {
         let slice = buf.bytes_mut();
+        let ptr = slice.as_ptr() as *const u8;
         let mut read_buf = ReadBuf::uninit(slice);
         match self.project().inner.poll_read(cx, &mut read_buf) {
             Poll::Ready(Ok(())) => {
-                assert!(std::ptr::eq(slice.as_ptr(), read_buf.filled().as_ptr()));
+                assert!(std::ptr::eq(ptr, read_buf.filled().as_ptr()));
                 let len = read_buf.filled().len();
                 unsafe {
                     buf.advance_mut(len);
@@ -186,39 +191,3 @@ impl<T: AsyncBufRead03> AsyncBufRead02 for IoCompat<T> {
     }
 }
 
-impl<T: AsyncSeek02> AsyncSeek03 for IoCompat<T> {
-    fn poll_fill_buf(
-        self: Pin<&mut Self>,
-        cx: &mut Context<'_>
-    ) -> Poll<Result<&[u8]>> {
-        let me = self.project();
-        let handle = me.handle;
-        let inner = me.inner;
-
-        handle.enter(|| {
-            inner.poll_fill_buf(cx)
-        })
-    }
-    fn consume(self: Pin<&mut Self>, amt: usize) {
-        let me = self.project();
-        let handle = me.handle;
-        let inner = me.inner;
-
-        handle.enter(|| {
-            inner.consume(amt)
-        })
-    }
-}
-
-impl<T: AsyncSeek03> AsyncSeek02 for IoCompat<T> {
-    fn poll_fill_buf(
-        self: Pin<&mut Self>,
-        cx: &mut Context<'_>
-    ) -> Poll<Result<&[u8]>> {
-        self.project().inner.poll_fill_buf(cx)
-    }
-
-    fn consume(self: Pin<&mut Self>, amt: usize) {
-        self.project().inner.consume(amt)
-    }
-}
