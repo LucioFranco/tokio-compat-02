@@ -3,14 +3,14 @@ use pin_project_lite::pin_project;
 use std::io::Result;
 use std::pin::Pin;
 use std::task::{Context, Poll};
-use tokio_02::io::{
-    AsyncBufRead as AsyncBufRead02, AsyncRead as AsyncRead02, AsyncWrite as AsyncWrite02,
-};
-use tokio_02::runtime::Handle;
 use tokio::io::{
     AsyncBufRead as AsyncBufRead03, AsyncRead as AsyncRead03, AsyncWrite as AsyncWrite03, ReadBuf,
 };
 use tokio::stream::Stream;
+use tokio_02::io::{
+    AsyncBufRead as AsyncBufRead02, AsyncRead as AsyncRead02, AsyncWrite as AsyncWrite02,
+};
+use tokio_02::runtime::Handle;
 
 pin_project! {
     /// `IoCompat` allows conversion between the 0.2 and 0.3 IO traits.
