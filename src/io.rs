@@ -166,6 +166,6 @@ impl<T: Stream> Stream for IoCompat<T> {
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
-        self.project().inner.size_hint()
+        self.inner.size_hint()
     }
 }
