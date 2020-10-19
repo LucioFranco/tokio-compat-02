@@ -7,7 +7,7 @@ use tokio_02::io::{
     AsyncBufRead as AsyncBufRead02, AsyncRead as AsyncRead02, AsyncWrite as AsyncWrite02,
 };
 use tokio_02::runtime::Handle;
-use tokio_03::io::{
+use tokio::io::{
     AsyncBufRead as AsyncBufRead03, AsyncRead as AsyncRead03, AsyncWrite as AsyncWrite03, ReadBuf,
 };
 
