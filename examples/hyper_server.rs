@@ -5,6 +5,7 @@ use tokio_compat_02::FutureExt;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 use std::convert::Infallible;
+use tokio_03 as tokio;
 
 // Start a Tokio 0.3 runtime
 #[tokio::main]
