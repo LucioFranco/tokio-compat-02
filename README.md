@@ -54,6 +54,8 @@ async fn hyper_get() -> Result<(), Box<dyn std::error::Error>> {
     client
         .get(Uri::from_static("http://tokio.rs"))
         .await?;
+
+    Ok(())
 }
 ```
 Be aware that the constructors of some type require being inside the context. For
@@ -64,6 +66,8 @@ use tokio_compat_02::FutureExt;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let duration = std::time::Duration::from_secs(1);
+
     // Call the non-async constructor in the context.
     let time_future = async { delay_for(duration) }.compat().await;
 
