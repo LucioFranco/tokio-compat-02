@@ -40,9 +40,11 @@ impl<T: AsyncRead02> AsyncRead03 for IoCompat<T> {
 
         let unfilled = buf.initialize_unfilled();
 
-        handle.enter(|| {
+        let num = handle.enter(|| {
             inner.poll_read(cx, unfilled).map_ok(|_num| ())
-        })
+        });
+
+        buf.advance(num);
     }
 }
 
