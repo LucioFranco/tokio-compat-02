@@ -20,8 +20,9 @@ use tokio_02::runtime::{Handle, Runtime};
 mod io;
 pub use self::io::IoCompat;
 
-static RT: OnceCell<Runtime> = OnceCell::new();
 fn get_handle() -> Handle {
+    static RT: OnceCell<Runtime> = OnceCell::new();
+
     RT
         .get_or_init(|| {
             tokio_02::runtime::Builder::new()
