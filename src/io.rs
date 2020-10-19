@@ -164,4 +164,8 @@ impl<T: Stream> Stream for IoCompat<T> {
 
         handle.enter(|| inner.poll_next(cx))
     }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.project().inner.size_hint()
+    }
 }
