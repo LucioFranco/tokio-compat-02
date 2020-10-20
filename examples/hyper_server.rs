@@ -3,6 +3,7 @@
 use tokio_compat_02::FutureExt;
 
 use hyper::service::{make_service_fn, service_fn};
+use hyper::server::conn::AddrIncoming;
 use hyper::{Body, Request, Response, Server};
 use std::convert::Infallible;
 
@@ -32,13 +33,28 @@ async fn server() -> Result<(), Box<dyn std::error::Error>> {
 
     let addr = ([127, 0, 0, 1], 3000).into();
 
-    let server = Server::bind(&addr).serve(make_svc);
+    let incoming = AddrIncoming::bind(&addr)?;
+    let server = Server::builder(incoming)
+        .executor(Tokio03Executor)
+        .serve(make_svc);
 
     println!("Listening on http://{}", addr);
 
     server.await?;
 
     Ok(())
+}
+
+#[derive(Clone)]
+struct Tokio03Executor;
+
+impl<F> hyper::rt::Executor<F> for Tokio03Executor
+where
+    F: std::future::Future + Send + 'static,
+{
+    fn execute(&self, fut: F) {
+        tokio::spawn(async move { fut.compat().await; });
+    }
 }
 
 async fn hello(_: Request<Body>) -> Result<Response<Body>, Infallible> {
