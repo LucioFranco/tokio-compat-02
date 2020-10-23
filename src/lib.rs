@@ -76,7 +76,7 @@
 //! Of course the above would also work if the surrounding async function was called
 //! with `.compat()`.
 
-#![doc(html_root_url = "https://docs.rs/tokio-compat-02/0.1.1")]
+#![doc(html_root_url = "https://docs.rs/tokio-compat-02/0.1.2")]
 
 use once_cell::sync::OnceCell;
 use pin_project_lite::pin_project;
