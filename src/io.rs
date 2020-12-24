@@ -1,19 +1,21 @@
 use bytes::buf::BufMut;
 use pin_project_lite::pin_project;
-use std::io::Result;
-use std::pin::Pin;
-use std::task::{Context, Poll};
+use std::{
+    io::Result,
+    pin::Pin,
+    task::{Context, Poll},
+};
 use tokio::io::{
-    AsyncBufRead as AsyncBufRead03, AsyncRead as AsyncRead03, AsyncWrite as AsyncWrite03, ReadBuf,
+    AsyncBufRead as AsyncBufRead1, AsyncRead as AsyncRead1, AsyncWrite as AsyncWrite1, ReadBuf,
 };
-use tokio::stream::Stream;
-use tokio_02::io::{
-    AsyncBufRead as AsyncBufRead02, AsyncRead as AsyncRead02, AsyncWrite as AsyncWrite02,
+use tokio_02::{
+    io::{AsyncBufRead as AsyncBufRead02, AsyncRead as AsyncRead02, AsyncWrite as AsyncWrite02},
+    runtime::Handle,
 };
-use tokio_02::runtime::Handle;
+use tokio_stream::Stream;
 
 pin_project! {
-    /// `IoCompat` allows conversion between the 0.2 and 0.3 IO traits.
+    /// `IoCompat` allows conversion between the 0.2 and 1.0 IO traits.
     ///
     /// By wrapping any Tokio IO type in this compatibility wrapper, it becomes usable
     /// with the traits of the other version of Tokio.
@@ -33,7 +35,7 @@ impl<T> IoCompat<T> {
     }
 }
 
-impl<T: AsyncRead02> AsyncRead03 for IoCompat<T> {
+impl<T: AsyncRead02> AsyncRead1 for IoCompat<T> {
     fn poll_read(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
@@ -55,7 +57,7 @@ impl<T: AsyncRead02> AsyncRead03 for IoCompat<T> {
     }
 }
 
-impl<T: AsyncRead03> AsyncRead02 for IoCompat<T> {
+impl<T: AsyncRead1> AsyncRead02 for IoCompat<T> {
     fn poll_read(self: Pin<&mut Self>, cx: &mut Context, buf: &mut [u8]) -> Poll<Result<usize>> {
         let mut read_buf = ReadBuf::new(buf);
         match self.project().inner.poll_read(cx, &mut read_buf) {
@@ -91,7 +93,7 @@ impl<T: AsyncRead03> AsyncRead02 for IoCompat<T> {
     }
 }
 
-impl<T: AsyncWrite02> AsyncWrite03 for IoCompat<T> {
+impl<T: AsyncWrite02> AsyncWrite1 for IoCompat<T> {
     fn poll_write(self: Pin<&mut Self>, cx: &mut Context<'_>, buf: &[u8]) -> Poll<Result<usize>> {
         let me = self.project();
         let handle = me.handle;
@@ -115,7 +117,7 @@ impl<T: AsyncWrite02> AsyncWrite03 for IoCompat<T> {
     }
 }
 
-impl<T: AsyncWrite03> AsyncWrite02 for IoCompat<T> {
+impl<T: AsyncWrite1> AsyncWrite02 for IoCompat<T> {
     fn poll_write(self: Pin<&mut Self>, cx: &mut Context<'_>, buf: &[u8]) -> Poll<Result<usize>> {
         self.project().inner.poll_write(cx, buf)
     }
@@ -127,7 +129,7 @@ impl<T: AsyncWrite03> AsyncWrite02 for IoCompat<T> {
     }
 }
 
-impl<T: AsyncBufRead02> AsyncBufRead03 for IoCompat<T> {
+impl<T: AsyncBufRead02> AsyncBufRead1 for IoCompat<T> {
     fn poll_fill_buf(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<&[u8]>> {
         let me = self.project();
         let handle = me.handle;
@@ -144,7 +146,7 @@ impl<T: AsyncBufRead02> AsyncBufRead03 for IoCompat<T> {
     }
 }
 
-impl<T: AsyncBufRead03> AsyncBufRead02 for IoCompat<T> {
+impl<T: AsyncBufRead1> AsyncBufRead02 for IoCompat<T> {
     fn poll_fill_buf(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<&[u8]>> {
         self.project().inner.poll_fill_buf(cx)
     }
