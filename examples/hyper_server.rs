@@ -14,7 +14,8 @@ use std::convert::Infallible;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // When we wrap all the 0.2 code in a lazy future we can then
     // compat it with tokio_compat_02::FutureExt and allow all the
-    // code to run within the tokio 0.2 context as well as the tokio 1.0 context.
+    // code to run within the tokio 0.2 context as well as the tokio
+    // 1.0 context.
     server().compat().await?;
 
     Ok(())
