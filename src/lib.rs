@@ -7,7 +7,7 @@
 //! that does not provide a Tokio context.
 //!
 //! Be aware that the `.compat()` region allows you to use _both_ Tokio 0.2 and 1
-//! features. It is _not_ the case that you opt-out of Tokio 1.0 when you are inside
+//! features. It is _not_ the case that you opt-out of Tokio 1 when you are inside
 //! a Tokio 0.2 compatibility region.
 //!
 //! Basic usage:
@@ -76,7 +76,7 @@
 //! Of course the above would also work if the surrounding async function was called
 //! with `.compat()`.
 
-#![doc(html_root_url = "https://docs.rs/tokio-compat-02/0.1.2")]
+#![doc(html_root_url = "https://docs.rs/tokio-compat-02/0.2.0")]
 
 use once_cell::sync::OnceCell;
 use pin_project_lite::pin_project;
