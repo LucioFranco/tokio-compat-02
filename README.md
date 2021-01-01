@@ -10,8 +10,8 @@ futures on other executors while still using Tokio to drive them. This
 can be useful if you need to use a Tokio based library in an executor/runtime
 that does not provide a Tokio context.
 
-Be aware that the `.compat()` region allows you to use _both_ Tokio 0.2 and 0.3
-features. It is _not_ the case that you opt-out of Tokio 0.3 when you are inside
+Be aware that the `.compat()` region allows you to use _both_ Tokio 0.2 and 1.0
+features. It is _not_ the case that you opt-out of Tokio 1.0 when you are inside
 a Tokio 0.2 compatibility region.
 
 Basic usage:

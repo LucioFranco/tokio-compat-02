@@ -2,18 +2,20 @@
 
 use tokio_compat_02::FutureExt;
 
-use hyper::service::{make_service_fn, service_fn};
-use hyper::server::conn::AddrIncoming;
-use hyper::{Body, Request, Response, Server};
+use hyper::{
+    server::conn::AddrIncoming,
+    service::{make_service_fn, service_fn},
+    Body, Request, Response, Server,
+};
 use std::convert::Infallible;
 
-// Start a Tokio 0.3 runtime
+// Start a Tokio 1.0 runtime
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // When we wrap all the 0.2 code in a lazy future we can then
     // compat it with tokio_compat_02::FutureExt and allow all the
     // code to run within the tokio 0.2 context as well as the tokio
-    // 0.3 context.
+    // 1.0 context.
     server().compat().await?;
 
     Ok(())
@@ -35,7 +37,7 @@ async fn server() -> Result<(), Box<dyn std::error::Error>> {
 
     let incoming = AddrIncoming::bind(&addr)?;
     let server = Server::builder(incoming)
-        .executor(Tokio03Executor)
+        .executor(Tokio1Executor)
         .serve(make_svc);
 
     println!("Listening on http://{}", addr);
@@ -46,14 +48,16 @@ async fn server() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[derive(Clone)]
-struct Tokio03Executor;
+struct Tokio1Executor;
 
-impl<F> hyper::rt::Executor<F> for Tokio03Executor
+impl<F> hyper::rt::Executor<F> for Tokio1Executor
 where
     F: std::future::Future + Send + 'static,
 {
     fn execute(&self, fut: F) {
-        tokio::spawn(async move { fut.compat().await; });
+        tokio::spawn(async move {
+            fut.compat().await;
+        });
     }
 }
 
