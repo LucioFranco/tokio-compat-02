@@ -1,7 +1,7 @@
 # Tokio Compat 0.2
 
 ```toml
-tokio-compat-02 = "0.1"
+tokio-compat-02 = "0.2"
 ```
 
 This crate includes utilities around integrating Tokio with other runtimes
@@ -10,8 +10,8 @@ futures on other executors while still using Tokio to drive them. This
 can be useful if you need to use a Tokio based library in an executor/runtime
 that does not provide a Tokio context.
 
-Be aware that the `.compat()` region allows you to use _both_ Tokio 0.2 and 1.0
-features. It is _not_ the case that you opt-out of Tokio 1.0 when you are inside
+Be aware that the `.compat()` region allows you to use _both_ Tokio 0.2 and 1
+features. It is _not_ the case that you opt-out of Tokio 1 when you are inside
 a Tokio 0.2 compatibility region.
 
 Basic usage:
